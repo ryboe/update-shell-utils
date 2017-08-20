@@ -1,0 +1,24 @@
+language: go
+
+go:
+  - 1.8
+  - tip
+
+matrix:
+  allow_failures:
+    - go: tip
+  # don't wait for tip tests to finish, since they're allowed to fail
+  fast_finish: true
+
+notifications:
+  email: false
+
+before_script:
+  - go get github.com/golang/lint/golint
+  - go get honnef.co/go/tools/cmd/megacheck
+
+script:
+  - test -z $(gofmt -s -l *.go)
+  - go vet ./...
+  - megacheck ./...
+  - golint -set_exit_status ./...
