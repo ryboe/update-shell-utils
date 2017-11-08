@@ -18,7 +18,7 @@ import (
 )
 
 func main() {
-	const numWorkers = 4
+	const numWorkers = 5
 	errc := make(chan error, numWorkers)
 
 	go func() {
@@ -145,7 +145,6 @@ func upgradeGoBins() error {
 		"github.com/shurcooL/binstale",
 		"github.com/sourcegraph/go-langserver",
 		"github.com/spf13/cobra/cobra,",
-		"github.com/y0ssar1an/update-shell-utils",
 		"golang.org/x/tools/cmd/goimports",
 		"golang.org/x/tools/cmd/guru",
 		"honnef.co/go/tools/cmd/megacheck",
