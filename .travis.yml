@@ -1,14 +1,7 @@
 language: go
 
 go:
-  - 1.8
-  - tip
-
-matrix:
-  allow_failures:
-    - go: tip
-  # don't wait for tip tests to finish, since they're allowed to fail
-  fast_finish: true
+  - 1.x
 
 notifications:
   email: false

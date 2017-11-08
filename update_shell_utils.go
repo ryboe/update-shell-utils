@@ -3,6 +3,7 @@
 //   pip3 install --upgrade && pip2 install --upgrade
 //   gcloud components update
 //   upgrade_oh_my_zsh
+//   go get -u <path>
 package main
 
 import (
@@ -34,6 +35,10 @@ func main() {
 
 	go func() {
 		errc <- upgradeOhMyZSH()
+	}()
+
+	go func() {
+		errc <- upgradeGoBins()
 	}()
 
 	for i := 0; i < numWorkers; i++ {
@@ -123,6 +128,36 @@ func upgradeOhMyZSH() error {
 	command.Dir = filepath.Join(zshDir, "tools")
 
 	return command.Run()
+}
+
+func upgradeGoBins() error {
+	paths := []string{
+		"github.com/client9/misspell/cmd/misspell",
+		"github.com/dvyukov/go-fuzz/go-fuzz",
+		"github.com/dvyukov/go-fuzz/go-fuzz-build",
+		"github.com/FiloSottile/gvt",
+		"github.com/fzipp/gocyclo",
+		"github.com/golang/dep/cmd/dep",
+		"github.com/golang/lint/golint",
+		"github.com/gordonklaus/ineffassign",
+		"github.com/magefile/mage",
+		"github.com/nsf/gocode",
+		"github.com/shurcooL/binstale",
+		"github.com/sourcegraph/go-langserver",
+		"github.com/spf13/cobra/cobra,",
+		"github.com/y0ssar1an/update-shell-utils",
+		"golang.org/x/tools/cmd/goimports",
+		"golang.org/x/tools/cmd/guru",
+		"honnef.co/go/tools/cmd/megacheck",
+		"mvdan.cc/sh/cmd/shfmt",
+	}
+
+	var err error
+	for _, path := range paths {
+		err = run("go", "get", "-u", path)
+	}
+
+	return err
 }
 
 func run(cmd string, args ...string) error {
