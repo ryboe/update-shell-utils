@@ -144,7 +144,7 @@ func upgradeGoBins() error {
 		"github.com/nsf/gocode",
 		"github.com/shurcooL/binstale",
 		"github.com/sourcegraph/go-langserver",
-		"github.com/spf13/cobra/cobra,",
+		"github.com/spf13/cobra/cobra",
 		"golang.org/x/tools/cmd/goimports",
 		"golang.org/x/tools/cmd/guru",
 		"honnef.co/go/tools/cmd/megacheck",
