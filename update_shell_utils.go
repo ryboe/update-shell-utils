@@ -18,7 +18,7 @@ import (
 )
 
 func main() {
-	const numWorkers = 5
+	const numWorkers = 4
 	errc := make(chan error, numWorkers)
 
 	go func() {
@@ -27,10 +27,6 @@ func main() {
 
 	go func() {
 		errc <- pipUpgrade()
-	}()
-
-	go func() {
-		errc <- run("gcloud", "components", "update", "--quiet")
 	}()
 
 	go func() {
