@@ -1,8 +1,6 @@
 // update-shell-utils runs the following commands in parallel:
 //   brew update && brew upgrade && brew cleanup && brew prune
 //   pip3 install --upgrade && pip2 install --upgrade
-//   gcloud components update
-//   upgrade_oh_my_zsh
 //   go get -u <path>
 package main
 
@@ -12,13 +10,12 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"strings"
 	"time"
 )
 
 func main() {
-	const numWorkers = 4
+	const numWorkers = 3
 	errc := make(chan error, numWorkers)
 
 	go func() {
@@ -27,10 +24,6 @@ func main() {
 
 	go func() {
 		errc <- pipUpgrade()
-	}()
-
-	go func() {
-		errc <- upgradeOhMyZSH()
 	}()
 
 	go func() {
@@ -109,23 +102,6 @@ func extractPipPkgs(output string) []string {
 	return pkgs
 }
 
-func upgradeOhMyZSH() error {
-	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
-	defer cancel()
-
-	command := exec.CommandContext(ctx, "git", "pull", "--rebase", "--stat", "origin", "master")
-	command.Stdout = os.Stdout
-	command.Stderr = os.Stderr
-
-	zshDir := os.Getenv("ZSH")
-	if zshDir == "" {
-		zshDir = filepath.Join(os.Getenv("HOME"), ".oh-my-zsh")
-	}
-	command.Dir = filepath.Join(zshDir, "tools")
-
-	return command.Run()
-}
-
 func upgradeGoBins() error {
 	paths := []string{
 		"github.com/client9/misspell/cmd/misspell",
@@ -139,7 +115,6 @@ func upgradeGoBins() error {
 		"github.com/magefile/mage",
 		"github.com/nsf/gocode",
 		"github.com/shurcooL/binstale",
-		"github.com/sourcegraph/go-langserver",
 		"github.com/spf13/cobra/cobra",
 		"golang.org/x/tools/cmd/goimports",
 		"golang.org/x/tools/cmd/guru",
