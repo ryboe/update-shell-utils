@@ -15,7 +15,7 @@ import (
 )
 
 func main() {
-	const numWorkers = 3
+	const numWorkers = 4
 	errc := make(chan error, numWorkers)
 
 	go func() {
@@ -28,6 +28,10 @@ func main() {
 
 	go func() {
 		errc <- upgradeGoBins()
+	}()
+
+	go func() {
+		errc <- rustupUpdate()
 	}()
 
 	for i := 0; i < numWorkers; i++ {
@@ -128,6 +132,10 @@ func upgradeGoBins() error {
 	}
 
 	return err
+}
+
+func rustupUpdate() error {
+	return run("rustup", "update")
 }
 
 func run(cmd string, args ...string) error {
