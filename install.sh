@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-set -eu
+set -e
 
-go build -ldflags '-s -w'
-mv update-shell-utils $GOPATH/bin
+go install -ldflags '-s -w'
