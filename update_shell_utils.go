@@ -2,6 +2,8 @@
 //   brew update && brew upgrade && brew cleanup && brew prune
 //   pip3 install --upgrade && pip2 install --upgrade
 //   go get -u <path>
+//   rustup update
+//   upgrade_oh_my_zsh
 package main
 
 import (
@@ -15,7 +17,7 @@ import (
 )
 
 func main() {
-	const numWorkers = 4
+	const numWorkers = 5
 	errc := make(chan error, numWorkers)
 
 	go func() {
@@ -32,6 +34,10 @@ func main() {
 
 	go func() {
 		errc <- rustupUpdate()
+	}()
+
+	go func() {
+		errc <- upgradeOhMyZsh()
 	}()
 
 	for i := 0; i < numWorkers; i++ {
@@ -136,6 +142,10 @@ func upgradeGoBins() error {
 
 func rustupUpdate() error {
 	return run("rustup", "update")
+}
+
+func upgradeOhMyZsh() error {
+	return run("zsh", "-i", "-c", "'upgrade_oh_my_zsh'")
 }
 
 func run(cmd string, args ...string) error {

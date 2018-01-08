@@ -10,4 +10,6 @@ Run these common upgrade commands concurrently:
 - pip3 install --upgrade
   pip2 install --upgrade
 - go get -u <bunch-of-go-binaries>
+- rustup update
+- upgrade_oh_my_zsh
 ```
