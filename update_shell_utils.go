@@ -114,7 +114,6 @@ func upgradeGoBins() error {
 		"github.com/dvyukov/go-fuzz/go-fuzz-build",
 		"github.com/FiloSottile/gvt",
 		"github.com/fzipp/gocyclo",
-		"github.com/golang/dep/cmd/dep",
 		"github.com/golang/lint/golint",
 		"github.com/gordonklaus/ineffassign",
 		"github.com/magefile/mage",
