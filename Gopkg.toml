@@ -1,0 +1,9 @@
+required = [
+  "github.com/golang/lint/golint",
+  "honnef.co/go/tools/cmd/megacheck",
+]
+
+[prune]
+  non-go = true
+  go-tests = true
+  unused-packages = true
