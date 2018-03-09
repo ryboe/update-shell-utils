@@ -16,7 +16,7 @@ import (
 )
 
 func main() {
-	const numWorkers = 6
+	const numWorkers = 7
 	errc := make(chan error, numWorkers)
 
 	go func() {
@@ -41,6 +41,10 @@ func main() {
 
 	go func() {
 		errc <- gcloudUpdate()
+	}()
+
+	go func() {
+		errc <- sublPkgUpgrade()
 	}()
 
 	for i := 0; i < numWorkers; i++ {
@@ -152,6 +156,15 @@ func nvimPlugUpdate() error {
 
 func gcloudUpdate() error {
 	return run("gcloud", "components", "update", "--quiet")
+}
+
+func sublPkgUpgrade() error {
+	err := run("subl", "--command", "update_check")
+	if err != nil {
+		return err
+	}
+
+	return run("subl", "--command", "upgrade_all_packages")
 }
 
 func run(cmd string, args ...string) error {
