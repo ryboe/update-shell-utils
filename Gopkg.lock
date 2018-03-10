@@ -5,7 +5,7 @@
   branch = "master"
   name = "github.com/golang/lint"
   packages = ["golint"]
-  revision = "721e72772f2b09b35ecba52638ebeb20436788a6"
+  revision = "837967239b74207656c3f550e9dc6a944866c490"
 
 [[projects]]
   name = "github.com/kisielk/gotool"
@@ -20,7 +20,7 @@
   branch = "master"
   name = "golang.org/x/lint"
   packages = ["."]
-  revision = "721e72772f2b09b35ecba52638ebeb20436788a6"
+  revision = "837967239b74207656c3f550e9dc6a944866c490"
 
 [[projects]]
   branch = "master"
@@ -33,7 +33,7 @@
     "go/loader",
     "go/types/typeutil"
   ]
-  revision = "73e16cff9e0d4a802937444bebb562458548241d"
+  revision = "059bec968c61383b574810040ba9410712de36c5"
 
 [[projects]]
   name = "honnef.co/go/tools"

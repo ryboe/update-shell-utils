@@ -23,6 +23,7 @@ import (
 	"unicode"
 	"unicode/utf8"
 
+	"golang.org/x/tools/go/ast/astutil"
 	"golang.org/x/tools/go/gcexportdata"
 )
 
@@ -1084,20 +1085,25 @@ func (f *file) lintRanges() {
 		if !ok {
 			return true
 		}
-		if rs.Value == nil {
-			// for x = range m { ... }
-			return true // single var form
-		}
-		if !isIdent(rs.Value, "_") {
-			// for ?, y = range m { ... }
+
+		if isIdent(rs.Key, "_") && (rs.Value == nil || isIdent(rs.Value, "_")) {
+			p := f.errorf(rs.Key, 1, category("range-loop"), "should omit values from range; this loop is equivalent to `for range ...`")
+
+			newRS := *rs // shallow copy
+			newRS.Value = nil
+			newRS.Key = nil
+			p.ReplacementLine = f.firstLineOf(&newRS, rs)
+
 			return true
 		}
 
-		p := f.errorf(rs.Value, 1, category("range-loop"), "should omit 2nd value from range; this loop is equivalent to `for %s %s range ...`", f.render(rs.Key), rs.Tok)
+		if isIdent(rs.Value, "_") {
+			p := f.errorf(rs.Value, 1, category("range-loop"), "should omit 2nd value from range; this loop is equivalent to `for %s %s range ...`", f.render(rs.Key), rs.Tok)
 
-		newRS := *rs // shallow copy
-		newRS.Value = nil
-		p.ReplacementLine = f.firstLineOf(&newRS, rs)
+			newRS := *rs // shallow copy
+			newRS.Value = nil
+			p.ReplacementLine = f.firstLineOf(&newRS, rs)
+		}
 
 		return true
 	})
@@ -1119,6 +1125,9 @@ func (f *file) lintErrorf() {
 			}
 		}
 		if !isErrorsNew && !isTestingError {
+			return true
+		}
+		if !f.imports("errors") {
 			return true
 		}
 		arg := ce.Args[0]
@@ -1299,6 +1308,9 @@ func (f *file) lintErrorReturn() {
 		}
 		ret := fn.Type.Results.List
 		if len(ret) <= 1 {
+			return true
+		}
+		if isIdent(ret[len(ret)-1].Type, "error") {
 			return true
 		}
 		// An error return parameter should be the last parameter.
@@ -1687,6 +1699,20 @@ func (f *file) srcLineWithMatch(node ast.Node, pattern string) (m []string) {
 	line = strings.TrimSuffix(line, "\n")
 	rx := regexp.MustCompile(pattern)
 	return rx.FindStringSubmatch(line)
+}
+
+// imports returns true if the current file imports the specified package path.
+func (f *file) imports(importPath string) bool {
+	all := astutil.Imports(f.fset, f.f)
+	for _, p := range all {
+		for _, i := range p {
+			uq, err := strconv.Unquote(i.Path.Value)
+			if err == nil && importPath == uq {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 // srcLine returns the complete line at p, including the terminating newline.
