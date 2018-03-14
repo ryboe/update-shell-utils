@@ -16,7 +16,7 @@ import (
 )
 
 func main() {
-	const numWorkers = 7
+	const numWorkers = 8
 	errc := make(chan error, numWorkers)
 
 	go func() {
@@ -45,6 +45,10 @@ func main() {
 
 	go func() {
 		errc <- sublPkgUpgrade()
+	}()
+
+	go func() {
+		errc <- macOSUpdate()
 	}()
 
 	for i := 0; i < numWorkers; i++ {
@@ -167,8 +171,15 @@ func sublPkgUpgrade() error {
 	return run("subl", "--command", "upgrade_all_packages")
 }
 
+func macOSUpdate() error {
+	// -i install updates
+	// -a install *all* updates
+	// -v verbose
+	return run("sudo", "softwareupdate", "-ia")
+}
+
 func run(cmd string, args ...string) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
+	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Minute)
 	defer cancel()
 
 	command := exec.CommandContext(ctx, cmd, args...)
