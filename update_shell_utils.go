@@ -67,34 +67,28 @@ func brewUpgrade() error {
 }
 
 func pipUpgrade() error {
-	py3Pkgs, err := outdatedPipPkgs("3")
+	py3Pkgs, err := outdatedPipPkgs()
 	if err != nil {
 		return err
+	}
+	if len(py3Pkgs) == 0 {
+		return nil
 	}
 
 	args := []string{"install", "--upgrade"}
-	err = run("pip3", append(args, py3Pkgs...)...)
-	if err != nil {
-		return err
-	}
-
-	py2Pkgs, err := outdatedPipPkgs("2")
-	if err != nil {
-		return err
-	}
-
-	return run("pip2", append(args, py2Pkgs...)...)
+	args = append(args, py3Pkgs...)
+	return run("pip", args...)
 }
 
-func outdatedPipPkgs(pyVersion string) ([]string, error) {
+func outdatedPipPkgs() ([]string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
 	defer cancel()
 
-	command := exec.CommandContext(ctx, "pip"+pyVersion, "list", "--outdated", "--format=freeze")
+	cmd := exec.CommandContext(ctx, "pip", "list", "--outdated", "--format=freeze")
 	var outBuf bytes.Buffer
-	command.Stdout = &outBuf
+	cmd.Stdout = &outBuf
 
-	if err := command.Run(); err != nil {
+	if err := cmd.Run(); err != nil {
 		return nil, err
 	}
 
