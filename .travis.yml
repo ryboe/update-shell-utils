@@ -9,15 +9,7 @@ notifications:
 install: true
 
 before_script:
-  - cd vendor/github.com/golang/lint/golint
-  - go install
-  - cd -
-  - cd vendor/honnef.co/go/tools/cmd/megacheck
-  - go install
-  - cd -
+  - go install ./vendor/github.com/golangci/golangci-lint/cmd/golangci-lint
 
 script:
-  - test -z $(gofmt -s -l *.go)
-  - go vet ./...
-  - megacheck ./...
-  - golint -set_exit_status $(find . -iname '*.go' | grep -v /vendor/)
+  - golangci-lint run

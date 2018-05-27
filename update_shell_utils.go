@@ -3,6 +3,7 @@
 //   pip3 install --upgrade && pip2 install --upgrade
 //   go get -u <path>
 //   rustup update
+//   softwareupdate -ia
 package main
 
 import (
