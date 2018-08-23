@@ -116,13 +116,9 @@ func extractPipPkgs(output string) []string {
 
 func upgradeGoBins() error {
 	paths := []string{
-		"github.com/client9/misspell/cmd/misspell",
 		"github.com/dvyukov/go-fuzz/go-fuzz",
 		"github.com/dvyukov/go-fuzz/go-fuzz-build",
-		"github.com/fzipp/gocyclo",
-		"github.com/golang/lint/golint",
 		"github.com/golangci/golangci-lint/cmd/golangci-lint",
-		"github.com/gordonklaus/ineffassign",
 		"github.com/magefile/mage",
 		"github.com/motemen/gore",
 		"github.com/nsf/gocode",
@@ -130,8 +126,6 @@ func upgradeGoBins() error {
 		"github.com/spf13/cobra/cobra",
 		"golang.org/x/tools/cmd/goimports",
 		"golang.org/x/tools/cmd/guru",
-		"honnef.co/go/tools/cmd/megacheck",
-		"mvdan.cc/sh/cmd/shfmt",
 	}
 
 	var err error
