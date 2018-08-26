@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 
-set -e
+set -euxo pipefail
 
-go install -ldflags '-s -w'
+CGO_ENABLED=0 go install -ldflags '-s -w'

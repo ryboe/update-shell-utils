@@ -41,10 +41,6 @@ func main() {
 	}()
 
 	go func() {
-		errc <- sublPkgUpgrade()
-	}()
-
-	go func() {
 		errc <- macOSUpdate()
 	}()
 
@@ -144,19 +140,9 @@ func nvimPlugUpdate() error {
 	return run("nvim", "+PlugUpgrade", "+PlugUpdate", "+qa")
 }
 
-func sublPkgUpgrade() error {
-	err := run("subl", "--command", "update_check")
-	if err != nil {
-		return err
-	}
-
-	return run("subl", "--command", "upgrade_all_packages")
-}
-
 func macOSUpdate() error {
 	// -i install updates
 	// -a install *all* updates
-	// -v verbose
 	return run("sudo", "softwareupdate", "-ia")
 }
 
