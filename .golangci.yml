@@ -1,9 +1,11 @@
 run:
-  deadline: 1h
+  deadline: 5m
   tests: true
 
 linters:
   enable-all: true
+  disable:
+    - gas
 
 linters-settings:
   gocyclo:

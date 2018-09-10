@@ -14,4 +14,4 @@ Run these common upgrade commands concurrently:
 - softwareupdate -ia
 ```
 
-Also updates Sublime Text, all Sublime Text packages, and all neovim packages.
+Also updates all neovim packages.
