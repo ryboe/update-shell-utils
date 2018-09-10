@@ -3,7 +3,10 @@ sudo: false
 language: go
 
 go:
-  - 1.x
+  - 1.11.x
+
+env:
+  - GO111MODULE=on
 
 git:
   depth: 1
@@ -14,7 +17,7 @@ notifications:
 install: true
 
 before_script:
-  - go install ./vendor/github.com/golangci/golangci-lint/cmd/golangci-lint
+  - go install -tags tools github.com/golangci/golangci-lint/cmd/golangci-lint
 
 script:
   - golangci-lint run

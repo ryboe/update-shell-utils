@@ -1,4 +1,5 @@
 # Binaries for programs and plugins
+update-shell-utils
 *.exe
 *.dll
 *.so
