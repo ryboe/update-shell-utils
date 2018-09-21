@@ -4,6 +4,7 @@
 //   go get -u <path>
 //   rustup update
 //   softwareupdate -ia
+//   subl --command update_check
 package main
 
 import (
@@ -25,6 +26,14 @@ func main() {
 	}()
 
 	go func() {
+		errc <- macOSUpdate()
+	}()
+
+	go func() {
+		errc <- nvimPlugUpdate()
+	}()
+
+	go func() {
 		errc <- pipUpgrade()
 	}()
 
@@ -37,11 +46,7 @@ func main() {
 	}()
 
 	go func() {
-		errc <- nvimPlugUpdate()
-	}()
-
-	go func() {
-		errc <- macOSUpdate()
+		errc <- sublPkgUpgrade()
 	}()
 
 	for i := 0; i < numWorkers; i++ {
@@ -112,14 +117,8 @@ func extractPipPkgs(output string) []string {
 
 func upgradeGoBins() error {
 	paths := []string{
-		"github.com/dvyukov/go-fuzz/go-fuzz",
-		"github.com/dvyukov/go-fuzz/go-fuzz-build",
 		"github.com/golangci/golangci-lint/cmd/golangci-lint",
 		"github.com/magefile/mage",
-		"github.com/motemen/gore",
-		"github.com/nsf/gocode",
-		"github.com/shurcooL/binstale",
-		"github.com/spf13/cobra/cobra",
 		"golang.org/x/tools/cmd/goimports",
 		"golang.org/x/tools/cmd/guru",
 	}
@@ -134,6 +133,15 @@ func upgradeGoBins() error {
 
 func rustupUpdate() error {
 	return run("rustup", "update")
+}
+
+func sublPkgUpgrade() error {
+	err := run("subl", "--command", "update_check")
+	if err != nil {
+		return err
+	}
+
+	return run("subl", "--command", "upgrade_all_packages")
 }
 
 func nvimPlugUpdate() error {
