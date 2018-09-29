@@ -11,14 +11,13 @@ require (
 	github.com/magefile/mage v1.6.2 // indirect
 	github.com/mattn/go-isatty v0.0.4 // indirect
 	github.com/nbutton23/zxcvbn-go v0.0.0-20180912185939-ae427f1e4c1d // indirect
-	github.com/sirupsen/logrus v1.0.6 // indirect
+	github.com/sirupsen/logrus v1.1.0 // indirect
 	github.com/spf13/cobra v0.0.3 // indirect
-	github.com/spf13/viper v1.2.0 // indirect
-	github.com/stretchr/testify v1.2.2 // indirect
-	golang.org/x/crypto v0.0.0-20180910181607-0e37d006457b // indirect
-	golang.org/x/net v0.0.0-20180921000356-2f5d2388922f // indirect
-	golang.org/x/sys v0.0.0-20180921163948-d47a0f339242 // indirect
-	golang.org/x/tools v0.0.0-20180917221912-90fa682c2a6e // indirect
+	github.com/spf13/viper v1.2.1 // indirect
+	golang.org/x/crypto v0.0.0-20180927165925-5295e8364332 // indirect
+	golang.org/x/net v0.0.0-20180926154720-4dfa2610cdf3 // indirect
+	golang.org/x/sys v0.0.0-20180928133829-e4b3c5e90611 // indirect
+	golang.org/x/tools v0.0.0-20180928181343-b3c0be4c978b // indirect
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
 	sourcegraph.com/sqs/pbtypes v0.0.0-20180604144634-d3ebe8f20ae4 // indirect
 )

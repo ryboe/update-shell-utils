@@ -8,7 +8,6 @@
 package main
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 	"os"
@@ -34,7 +33,7 @@ func main() {
 	}()
 
 	go func() {
-		errc <- pipUpgrade()
+		errc <- pipUpgradeAll()
 	}()
 
 	go func() {
@@ -68,33 +67,47 @@ func brewUpgrade() error {
 	return nil
 }
 
-func pipUpgrade() error {
-	py3Pkgs, err := outdatedPipPkgs()
+func pipUpgradeAll() error {
+	err := pipUpgrade("3")
 	if err != nil {
 		return err
 	}
-	if len(py3Pkgs) == 0 {
+
+	return pipUpgrade("2")
+}
+
+func pipUpgrade(pipVersion string) error {
+	if pipVersion != "2" && pipVersion != "3" {
+		errMsg := fmt.Sprintf("%q is not a valid version of the pip package manager (must be 2 or 3)", pipVersion)
+		panic(errMsg)
+	}
+
+	pipCmd := fmt.Sprintf("pip%s", pipVersion)
+	pkgs, err := outdatedPipPkgs(pipCmd)
+	if err != nil {
+		return err
+	}
+	if len(pkgs) == 0 {
 		return nil
 	}
 
-	args := []string{"install", "--upgrade"}
-	args = append(args, py3Pkgs...)
-	return run("pip", args...)
+	args := append([]string{pipCmd, "install", "--upgrade"}, pkgs...)
+	return run("sudo", args...)
 }
 
-func outdatedPipPkgs() ([]string, error) {
+func outdatedPipPkgs(pipCmd string) ([]string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
 	defer cancel()
 
-	cmd := exec.CommandContext(ctx, "pip", "list", "--outdated", "--format=freeze")
-	var outBuf bytes.Buffer
-	cmd.Stdout = &outBuf
+	cmd := exec.CommandContext(ctx, "sudo", pipCmd, "list", "--format=freeze")
+	var buf strings.Builder
+	cmd.Stdout = &buf
 
 	if err := cmd.Run(); err != nil {
 		return nil, err
 	}
 
-	return extractPipPkgs(outBuf.String()), nil
+	return extractPipPkgs(buf.String()), nil
 }
 
 func extractPipPkgs(output string) []string {
@@ -132,6 +145,11 @@ func upgradeGoBins() error {
 }
 
 func rustupUpdate() error {
+	err := run("rustup", "self", "update")
+	if err != nil {
+		return err
+	}
+
 	return run("rustup", "update")
 }
 
