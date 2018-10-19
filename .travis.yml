@@ -17,7 +17,7 @@ notifications:
 install: true
 
 before_script:
-  - go install -tags tools github.com/golangci/golangci-lint/cmd/golangci-lint
+  - go install -mod vendor -tags tools github.com/golangci/golangci-lint/cmd/golangci-lint
 
 script:
   - golangci-lint run

@@ -2,4 +2,4 @@
 
 set -euxo pipefail
 
-CGO_ENABLED=0 go install -ldflags '-s -w'
+CGO_ENABLED=0 go install -mod vendor -ldflags '-s -w'

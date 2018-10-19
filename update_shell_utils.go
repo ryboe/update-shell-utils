@@ -91,7 +91,7 @@ func pipUpgrade(pipVersion string) error {
 		return nil
 	}
 
-	args := append([]string{pipCmd, "install", "--upgrade"}, pkgs...)
+	args := append([]string{"sudo", "-H", pipCmd, "install", "--upgrade"}, pkgs...)
 	return run("sudo", args...)
 }
 
@@ -99,7 +99,7 @@ func outdatedPipPkgs(pipCmd string) ([]string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
 	defer cancel()
 
-	cmd := exec.CommandContext(ctx, "sudo", pipCmd, "list", "--format=freeze")
+	cmd := exec.CommandContext(ctx, "sudo", "-H", pipCmd, "list", "--format=freeze")
 	var buf strings.Builder
 	cmd.Stdout = &buf
 
