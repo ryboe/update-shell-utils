@@ -1,7 +1,7 @@
 module github.com/y0ssar1an/update-shell-utils
 
 require (
-	github.com/StackExchange/wmi v0.0.0-20180725035823-b12b22c5341f // indirect
+	github.com/BurntSushi/toml v0.3.1 // indirect
 	github.com/fatih/color v1.7.0 // indirect
 	github.com/golangci/errcheck v0.0.0-20181003203344-1765131d5be5 // indirect
 	github.com/golangci/gocyclo v0.0.0-20180528144436-0a533e8fa43d // indirect
@@ -9,10 +9,11 @@ require (
 	github.com/golangci/revgrep v0.0.0-20180812185044-276a5c0a1039 // indirect
 	github.com/golangci/unparam v0.0.0-20180902115109-7ad9dbcccc16 // indirect
 	github.com/konsorten/go-windows-terminal-sequences v1.0.1 // indirect
-	github.com/magefile/mage v1.7.1 // indirect
+	github.com/kr/pretty v0.1.0 // indirect
 	github.com/mattn/go-isatty v0.0.4 // indirect
 	github.com/mitchellh/mapstructure v1.1.2 // indirect
 	github.com/nbutton23/zxcvbn-go v0.0.0-20180912185939-ae427f1e4c1d // indirect
+	github.com/onsi/gomega v1.4.2 // indirect
 	github.com/sirupsen/logrus v1.1.1 // indirect
 	github.com/spf13/cobra v0.0.3 // indirect
 	github.com/spf13/pflag v1.0.3 // indirect
