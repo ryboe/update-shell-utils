@@ -17,7 +17,7 @@ import (
 )
 
 func main() {
-	const numWorkers = 7
+	const numWorkers = 6
 	errc := make(chan error, numWorkers)
 
 	go func() {
