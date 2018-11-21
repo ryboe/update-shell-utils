@@ -33,11 +33,7 @@ func main() {
 	}()
 
 	go func() {
-		errc <- pipUpgradeAll()
-	}()
-
-	go func() {
-		errc <- upgradeGoBins()
+		errc <- pipUpgrade()
 	}()
 
 	go func() {
@@ -56,10 +52,8 @@ func main() {
 }
 
 func brewUpgrade() error {
-	var err error
 	for _, subcmd := range []string{"update", "upgrade", "cleanup", "prune"} {
-		err = run("brew", subcmd)
-		if err != nil {
+		if err := run("brew", subcmd); err != nil {
 			return err
 		}
 	}
@@ -67,23 +61,8 @@ func brewUpgrade() error {
 	return nil
 }
 
-func pipUpgradeAll() error {
-	err := pipUpgrade("3")
-	if err != nil {
-		return err
-	}
-
-	return pipUpgrade("2")
-}
-
-func pipUpgrade(pipVersion string) error {
-	if pipVersion != "2" && pipVersion != "3" {
-		errMsg := fmt.Sprintf("%q is not a valid version of the pip package manager (must be 2 or 3)", pipVersion)
-		panic(errMsg)
-	}
-
-	pipCmd := fmt.Sprintf("pip%s", pipVersion)
-	pkgs, err := outdatedPipPkgs(pipCmd)
+func pipUpgrade() error {
+	pkgs, err := outdatedPipPkgs()
 	if err != nil {
 		return err
 	}
@@ -91,15 +70,15 @@ func pipUpgrade(pipVersion string) error {
 		return nil
 	}
 
-	args := append([]string{"sudo", "-H", pipCmd, "install", "--upgrade"}, pkgs...)
+	args := append([]string{"sudo", "-H", "pip3", "install", "--upgrade"}, pkgs...)
 	return run("sudo", args...)
 }
 
-func outdatedPipPkgs(pipCmd string) ([]string, error) {
+func outdatedPipPkgs() ([]string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
 	defer cancel()
 
-	cmd := exec.CommandContext(ctx, "sudo", "-H", pipCmd, "list", "--format=freeze")
+	cmd := exec.CommandContext(ctx, "sudo", "-H", "pip3", "list", "--format=freeze")
 	var buf strings.Builder
 	cmd.Stdout = &buf
 
@@ -126,22 +105,6 @@ func extractPipPkgs(output string) []string {
 	}
 
 	return pkgs
-}
-
-func upgradeGoBins() error {
-	paths := []string{
-		"github.com/golangci/golangci-lint/cmd/golangci-lint",
-		"github.com/magefile/mage",
-		"golang.org/x/tools/cmd/goimports",
-		"golang.org/x/tools/cmd/guru",
-	}
-
-	var err error
-	for _, path := range paths {
-		err = run("go", "get", "-u", path)
-	}
-
-	return err
 }
 
 func rustupUpdate() error {
