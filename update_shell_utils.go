@@ -17,7 +17,7 @@ import (
 )
 
 func main() {
-	const numWorkers = 6
+	const numWorkers = 7
 	errc := make(chan error, numWorkers)
 
 	go func() {
@@ -34,6 +34,10 @@ func main() {
 
 	go func() {
 		errc <- pipUpgrade()
+	}()
+
+	go func() {
+		errc <- poetryUpdate()
 	}()
 
 	go func() {
@@ -107,9 +111,12 @@ func extractPipPkgs(output string) []string {
 	return pkgs
 }
 
+func poetryUpdate() error {
+	return run("poetry", "self:update")
+}
+
 func rustupUpdate() error {
-	err := run("rustup", "self", "update")
-	if err != nil {
+	if err := run("rustup", "self", "update"); err != nil {
 		return err
 	}
 
@@ -117,8 +124,7 @@ func rustupUpdate() error {
 }
 
 func sublPkgUpgrade() error {
-	err := run("subl", "--command", "update_check")
-	if err != nil {
+	if err := run("subl", "--command", "update_check"); err != nil {
 		return err
 	}
 
