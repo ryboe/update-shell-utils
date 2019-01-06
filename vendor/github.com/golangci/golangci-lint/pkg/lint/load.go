@@ -182,7 +182,7 @@ func (cl ContextLoader) buildArgs() []string {
 
 	var retArgs []string
 	for _, arg := range args {
-		if strings.HasPrefix(arg, ".") {
+		if strings.HasPrefix(arg, ".") || filepath.IsAbs(arg) {
 			retArgs = append(retArgs, arg)
 		} else {
 			// go/packages doesn't work well if we don't have prefix ./ for local packages
@@ -193,6 +193,35 @@ func (cl ContextLoader) buildArgs() []string {
 	return retArgs
 }
 
+func (cl ContextLoader) makeBuildFlags() ([]string, error) {
+	var buildFlags []string
+
+	if len(cl.cfg.Run.BuildTags) != 0 {
+		// go help build
+		buildFlags = append(buildFlags, "-tags", strings.Join(cl.cfg.Run.BuildTags, " "))
+	}
+
+	mod := cl.cfg.Run.ModulesDownloadMode
+	if mod != "" {
+		// go help modules
+		allowedMods := []string{"release", "readonly", "vendor"}
+		var ok bool
+		for _, am := range allowedMods {
+			if am == mod {
+				ok = true
+				break
+			}
+		}
+		if !ok {
+			return nil, fmt.Errorf("invalid modules download path %s, only (%s) allowed", mod, strings.Join(allowedMods, "|"))
+		}
+
+		buildFlags = append(buildFlags, fmt.Sprintf("-mod=%s", cl.cfg.Run.ModulesDownloadMode))
+	}
+
+	return buildFlags, nil
+}
+
 func (cl ContextLoader) loadPackages(ctx context.Context, loadMode packages.LoadMode) ([]*packages.Package, error) {
 	defer func(startedAt time.Time) {
 		cl.log.Infof("Go packages loading at mode %s took %s", stringifyLoadMode(loadMode), time.Since(startedAt))
@@ -200,11 +229,11 @@ func (cl ContextLoader) loadPackages(ctx context.Context, loadMode packages.Load
 
 	cl.prepareBuildContext()
 
-	var buildFlags []string
-	if len(cl.cfg.Run.BuildTags) != 0 {
-		// go help build
-		buildFlags = []string{"-tags", strings.Join(cl.cfg.Run.BuildTags, " ")}
+	buildFlags, err := cl.makeBuildFlags()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to make build flags for go list")
 	}
+
 	conf := &packages.Config{
 		Mode:       loadMode,
 		Tests:      cl.cfg.Run.AnalyzeTests,
@@ -334,7 +363,7 @@ func (cl ContextLoader) Load(ctx context.Context, linters []linter.Config) (*lin
 	} else {
 		for _, pkg := range pkgs {
 			if pkg.IllTyped {
-				cl.log.Infof("Pkg %s errors: %v", pkg.ID, libpackages.ExtractErrors(pkg))
+				cl.log.Infof("Pkg %s errors: %v", pkg.ID, libpackages.ExtractErrors(pkg, astCache))
 			}
 		}
 	}

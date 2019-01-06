@@ -22,7 +22,7 @@ func (e *Executor) initHelp() {
 			}
 		},
 	}
-	e.rootCmd.AddCommand(helpCmd)
+	e.rootCmd.SetHelpCommand(helpCmd)
 
 	lintersHelpCmd := &cobra.Command{
 		Use:   "linters",
@@ -44,6 +44,10 @@ func printLinterConfigs(lcs []linter.Config) {
 }
 
 func (e Executor) executeLintersHelp(cmd *cobra.Command, args []string) {
+	if len(args) != 0 {
+		e.log.Fatalf("Usage: golangci-lint help linters")
+	}
+
 	var enabledLCs, disabledLCs []linter.Config
 	for _, lc := range e.DBManager.GetAllSupportedLinterConfigs() {
 		if lc.EnabledByDefault {
