@@ -1,10 +1,16 @@
 // update-shell-utils runs the following commands in parallel:
-//   brew update && brew upgrade && brew cleanup && brew prune
-//   pip3 install --upgrade && pip2 install --upgrade
-//   go get -u <path>
+//   brew update
+//   brew upgrade
+//   brew cleanup -s
+//   brew prune
+//   nvim +PlugUpgrade +PlugUpdate        # upgrade all neovim packages
+//   pip3 install --upgrade
+//   poetry self:update
 //   rustup update
 //   softwareupdate -ia
-//   subl --command update_check
+//   subl --command update_check          # upgrade sublime text
+//   subl --command upgrade_all_packages  # upgrade all sublime [ackages
+
 package main
 
 import (
