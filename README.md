@@ -4,13 +4,12 @@
 This was made for my Mac, but you're welcome to fork it and modify it for your
 system.
 
-Run these common upgrade commands concurrently:
+Run these common upgrade commands in parallel:
 
 ```sh
 - brew update
   brew upgrade
-  brew cleanup -s
-  brew prune
+  brew cleanup
 - nvim +PlugUpgrade +PlugUpdate        # upgrade all neovim packages
 - pip3 install --upgrade
 - poetry self:update
