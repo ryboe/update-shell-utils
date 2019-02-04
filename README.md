@@ -9,7 +9,6 @@ Run these common upgrade commands in parallel:
 ```sh
 - brew update
   brew upgrade
-  brew cleanup
 - nvim +PlugUpgrade +PlugUpdate        # upgrade all neovim packages
 - pip3 install --upgrade
 - poetry self:update
