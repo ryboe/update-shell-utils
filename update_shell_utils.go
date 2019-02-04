@@ -1,7 +1,6 @@
 // update-shell-utils runs the following commands in parallel:
 //   brew update
 //   brew upgrade
-//   brew cleanup
 //   nvim +PlugUpgrade +PlugUpdate        # upgrade all neovim packages
 //   pip3 install --upgrade
 //   poetry self:update
@@ -61,13 +60,12 @@ func main() {
 }
 
 func brewUpgrade() error {
-	for _, subcmd := range []string{"update", "upgrade", "cleanup"} {
-		if err := run("brew", subcmd); err != nil {
-			return err
-		}
+	err := run("brew", "update")
+	if err != nil {
+		return err
 	}
 
-	return nil
+	return run("brew", "upgrade")
 }
 
 func pipUpgrade() error {
