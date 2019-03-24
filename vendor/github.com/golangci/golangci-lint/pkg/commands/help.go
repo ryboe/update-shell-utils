@@ -17,6 +17,9 @@ func (e *Executor) initHelp() {
 		Use:   "help",
 		Short: "Help",
 		Run: func(cmd *cobra.Command, args []string) {
+			if len(args) != 0 {
+				e.log.Fatalf("Usage: golangci-lint help")
+			}
 			if err := cmd.Help(); err != nil {
 				e.log.Fatalf("Can't run help: %s", err)
 			}
@@ -32,23 +35,23 @@ func (e *Executor) initHelp() {
 	helpCmd.AddCommand(lintersHelpCmd)
 }
 
-func printLinterConfigs(lcs []linter.Config) {
+func printLinterConfigs(lcs []*linter.Config) {
 	for _, lc := range lcs {
 		altNamesStr := ""
 		if len(lc.AlternativeNames) != 0 {
 			altNamesStr = fmt.Sprintf(" (%s)", strings.Join(lc.AlternativeNames, ", "))
 		}
-		fmt.Fprintf(logutils.StdOut, "%s%s: %s [fast: %t]\n", color.YellowString(lc.Name()),
-			altNamesStr, lc.Linter.Desc(), !lc.NeedsSSARepr)
+		fmt.Fprintf(logutils.StdOut, "%s%s: %s [fast: %t, auto-fix: %t]\n", color.YellowString(lc.Name()),
+			altNamesStr, lc.Linter.Desc(), !lc.NeedsSSARepr, lc.CanAutoFix)
 	}
 }
 
-func (e Executor) executeLintersHelp(cmd *cobra.Command, args []string) {
+func (e *Executor) executeLintersHelp(_ *cobra.Command, args []string) {
 	if len(args) != 0 {
 		e.log.Fatalf("Usage: golangci-lint help linters")
 	}
 
-	var enabledLCs, disabledLCs []linter.Config
+	var enabledLCs, disabledLCs []*linter.Config
 	for _, lc := range e.DBManager.GetAllSupportedLinterConfigs() {
 		if lc.EnabledByDefault {
 			enabledLCs = append(enabledLCs, lc)
