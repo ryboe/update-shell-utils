@@ -2,10 +2,9 @@ package config
 
 import (
 	"errors"
-	"strings"
+	"fmt"
+	"regexp"
 	"time"
-
-	"github.com/golangci/golangci-lint/pkg/logutils"
 )
 
 const (
@@ -14,6 +13,7 @@ const (
 	OutFormatColoredLineNumber = "colored-line-number"
 	OutFormatTab               = "tab"
 	OutFormatCheckstyle        = "checkstyle"
+	OutFormatCodeClimate       = "code-climate"
 )
 
 var OutFormats = []string{
@@ -22,6 +22,7 @@ var OutFormats = []string{
 	OutFormatJSON,
 	OutFormatTab,
 	OutFormatCheckstyle,
+	OutFormatCodeClimate,
 }
 
 type ExcludePattern struct {
@@ -55,7 +56,7 @@ var DefaultExcludePatterns = []ExcludePattern{
 	},
 	{
 		Pattern: "ineffective break statement. Did you mean to break out of the outer loop",
-		Linter:  "megacheck",
+		Linter:  "staticcheck",
 		Why:     "Developers tend to write in C-style with an explicit 'break' in a 'switch', so it's ok to ignore",
 	},
 	{
@@ -157,7 +158,8 @@ type LintersSettings struct {
 		IncludeGoRoot bool `mapstructure:"include-go-root"`
 	}
 	Misspell struct {
-		Locale string
+		Locale      string
+		IgnoreWords []string `mapstructure:"ignore-words"`
 	}
 	Unused struct {
 		CheckExported bool `mapstructure:"check-exported"`
@@ -198,85 +200,6 @@ type PreallocSettings struct {
 	ForLoops   bool `mapstructure:"for-loops"`
 }
 
-type GocriticCheckSettings map[string]interface{}
-
-type GocriticSettings struct {
-	EnabledChecks    []string                         `mapstructure:"enabled-checks"`
-	DisabledChecks   []string                         `mapstructure:"disabled-checks"`
-	SettingsPerCheck map[string]GocriticCheckSettings `mapstructure:"settings"`
-
-	inferredEnabledChecks map[string]bool
-}
-
-func (s *GocriticSettings) InferEnabledChecks(log logutils.Log) {
-	enabledChecks := s.EnabledChecks
-	if len(enabledChecks) == 0 {
-		if len(s.DisabledChecks) != 0 {
-			for _, defaultCheck := range defaultGocriticEnabledChecks {
-				if !s.isCheckDisabled(defaultCheck) {
-					enabledChecks = append(enabledChecks, defaultCheck)
-				}
-			}
-		} else {
-			enabledChecks = defaultGocriticEnabledChecks
-		}
-	}
-
-	s.inferredEnabledChecks = map[string]bool{}
-	for _, check := range enabledChecks {
-		s.inferredEnabledChecks[strings.ToLower(check)] = true
-	}
-	log.Infof("Gocritic enabled checks: %s", enabledChecks)
-}
-
-func (s GocriticSettings) isCheckDisabled(name string) bool {
-	for _, disabledCheck := range s.DisabledChecks {
-		if disabledCheck == name {
-			return true
-		}
-	}
-
-	return false
-}
-
-func (s GocriticSettings) Validate(log logutils.Log) error {
-	if len(s.EnabledChecks) != 0 && len(s.DisabledChecks) != 0 {
-		return errors.New("both enabled and disabled check aren't allowed for gocritic")
-	}
-
-	for checkName := range s.SettingsPerCheck {
-		if !s.IsCheckEnabled(checkName) {
-			log.Warnf("Gocritic settings were provided for not enabled check %q", checkName)
-		}
-	}
-
-	return nil
-}
-
-func (s GocriticSettings) IsCheckEnabled(name string) bool {
-	return s.inferredEnabledChecks[strings.ToLower(name)]
-}
-
-var defaultGocriticEnabledChecks = []string{
-	"appendAssign",
-	"assignOp",
-	"caseOrder",
-	"dupArg",
-	"dupBranchBody",
-	"dupCase",
-	"flagDeref",
-	"ifElseChain",
-	"regexpMust",
-	"singleCaseSwitch",
-	"sloppyLen",
-	"switchTrue",
-	"typeSwitchVar",
-	"underef",
-	"unlambda",
-	"unslice",
-	"defaultCaseOrder",
-}
-
 var defaultLintersSettings = LintersSettings{
 	Lll: LllSettings{
 		LineLength: 120,
@@ -308,9 +231,47 @@ type Linters struct {
 	Presets []string
 }
 
+type ExcludeRule struct {
+	Linters []string
+	Path    string
+	Text    string
+}
+
+func validateOptionalRegex(value string) error {
+	if value == "" {
+		return nil
+	}
+	_, err := regexp.Compile(value)
+	return err
+}
+
+func (e ExcludeRule) Validate() error {
+	if err := validateOptionalRegex(e.Path); err != nil {
+		return fmt.Errorf("invalid path regex: %v", err)
+	}
+	if err := validateOptionalRegex(e.Text); err != nil {
+		return fmt.Errorf("invalid text regex: %v", err)
+	}
+	nonBlank := 0
+	if len(e.Linters) > 0 {
+		nonBlank++
+	}
+	if e.Path != "" {
+		nonBlank++
+	}
+	if e.Text != "" {
+		nonBlank++
+	}
+	if nonBlank < 2 {
+		return errors.New("at least 2 of (text, path, linters) should be set")
+	}
+	return nil
+}
+
 type Issues struct {
-	ExcludePatterns    []string `mapstructure:"exclude"`
-	UseDefaultExcludes bool     `mapstructure:"exclude-use-default"`
+	ExcludePatterns    []string      `mapstructure:"exclude"`
+	ExcludeRules       []ExcludeRule `mapstructure:"exclude-rules"`
+	UseDefaultExcludes bool          `mapstructure:"exclude-use-default"`
 
 	MaxIssuesPerLinter int `mapstructure:"max-issues-per-linter"`
 	MaxSameIssues      int `mapstructure:"max-same-issues"`
@@ -318,6 +279,8 @@ type Issues struct {
 	DiffFromRevision  string `mapstructure:"new-from-rev"`
 	DiffPatchFilePath string `mapstructure:"new-from-patch"`
 	Diff              bool   `mapstructure:"new"`
+
+	NeedFix bool `mapstructure:"fix"`
 }
 
 type Config struct { //nolint:maligned

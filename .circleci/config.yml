@@ -2,7 +2,7 @@ version: 2.1
 jobs:
   build:
     docker:
-      - image: golang:1.11
+      - image: golang:1.12
     environment:
       GO111MODULE: 'on'
     working_directory: /go/src/github.com/y0ssar1an/update-shell-utils

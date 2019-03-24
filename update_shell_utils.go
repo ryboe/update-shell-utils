@@ -16,12 +16,11 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"strings"
 	"time"
 )
 
 func main() {
-	const numWorkers = 7
+	const numWorkers = 5
 	errc := make(chan error, numWorkers)
 
 	go func() {
@@ -33,15 +32,7 @@ func main() {
 	}()
 
 	go func() {
-		errc <- nvimPlugUpdate()
-	}()
-
-	go func() {
 		errc <- pipUpgrade()
-	}()
-
-	go func() {
-		errc <- poetryUpdate()
 	}()
 
 	go func() {
@@ -69,73 +60,19 @@ func brewUpgrade() error {
 }
 
 func pipUpgrade() error {
-	pkgs, err := outdatedPipPkgs()
-	if err != nil {
+	if err := run("pip3", "install", "--upgrade", "pip", "setuptools", "wheel"); err != nil {
 		return err
 	}
-	if len(pkgs) == 0 {
-		return nil
-	}
 
-	args := append([]string{"sudo", "-H", "pip3", "install", "--upgrade"}, pkgs...)
-	return run("sudo", args...)
-}
-
-func outdatedPipPkgs() ([]string, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
-	defer cancel()
-
-	cmd := exec.CommandContext(ctx, "sudo", "-H", "pip3", "list", "--format=freeze")
-	var buf strings.Builder
-	cmd.Stdout = &buf
-
-	if err := cmd.Run(); err != nil {
-		return nil, err
-	}
-
-	return extractPipPkgs(buf.String()), nil
-}
-
-func extractPipPkgs(output string) []string {
-	lines := strings.Split(output, "\n")
-	pkgs := make([]string, 0, len(lines))
-
-	for _, line := range lines {
-		line = strings.TrimSpace(line)
-		chunks := strings.Split(line, "==")
-		if len(chunks) < 2 {
-			continue // line doesn't contain "=="
-		}
-
-		pkg := strings.TrimSpace(chunks[0])
-		pkgs = append(pkgs, pkg)
-	}
-
-	return pkgs
-}
-
-func poetryUpdate() error {
-	return run("poetry", "self:update")
+	return run("pip3", "install", "--user", "--upgrade", "poetry")
 }
 
 func rustupUpdate() error {
-	if err := run("rustup", "self", "update"); err != nil {
-		return err
-	}
-
 	return run("rustup", "update")
 }
 
 func sublPkgUpgrade() error {
-	if err := run("subl", "--command", "update_check"); err != nil {
-		return err
-	}
-
-	return run("subl", "--command", "upgrade_all_packages")
-}
-
-func nvimPlugUpdate() error {
-	return run("nvim", "+PlugUpgrade", "+PlugUpdate", "+qa")
+	return run("subl", "--command", "update_check", "--command", "upgrade_all_packages")
 }
 
 func macOSUpdate() error {
@@ -145,7 +82,7 @@ func macOSUpdate() error {
 }
 
 func run(cmd string, args ...string) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Minute)
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Minute) // macOS updates can take a while
 	defer cancel()
 
 	command := exec.CommandContext(ctx, cmd, args...)
