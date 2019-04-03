@@ -14,6 +14,13 @@ jobs:
       - checkout
       - run: cargo build --release
 
+  check:
+    executor:
+      name: rust-container
+    steps:
+      - checkout
+      - run: cargo check
+
   fmt:
     executor:
       name: rust-container
@@ -41,7 +48,16 @@ workflows:
   version: 2
   do_all_the_things:
     jobs:
-      - build
-      - fmt
-      - lint
-      - test
+      - check
+      - build:
+          requires:
+            - check
+      - fmt:
+          requires:
+            - check
+      - lint:
+          requires:
+            - check
+      - test:
+          requires:
+            - check
