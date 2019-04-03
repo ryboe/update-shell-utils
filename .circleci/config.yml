@@ -39,7 +39,7 @@ jobs:
 
 workflows:
   version: 2
-  build_and_test:
+  do_all_the_things:
     jobs:
       - build
       - fmt
