@@ -9,9 +9,8 @@ Run these common upgrade commands in parallel:
 ```sh
 - brew update
   brew upgrade
-- nvim +PlugUpgrade +PlugUpdate        # upgrade all neovim packages
-- pip3 install --upgrade
-- poetry self:update
+- pip3 install --upgrade pip setuptools wheel
+  pip3 install --upgrade --user poetry
 - rustup update
 - softwareupdate -ia
 - subl --command update_check          # upgrade sublime text

@@ -1,12 +1,63 @@
 version: 2.1
+
+executors:
+  rust-container:
+    docker:
+      - image: rust:1.33-slim
+    working_directory: /usr/src/update-shell-utils
+
 jobs:
   build:
-    docker:
-      - image: golang:1.12
-    environment:
-      GO111MODULE: 'on'
-    working_directory: /go/src/github.com/y0ssar1an/update-shell-utils
+    executor:
+      name: rust-container
     steps:
       - checkout
-      - run: go install -mod vendor github.com/y0ssar1an/update-shell-utils/vendor/github.com/golangci/golangci-lint/cmd/golangci-lint
-      - run: golangci-lint run
+      - run: cargo build --release
+
+  check:
+    executor:
+      name: rust-container
+    steps:
+      - checkout
+      - run: cargo check
+
+  fmt:
+    executor:
+      name: rust-container
+    steps:
+      - checkout
+      - run: rustup component add rustfmt
+      - run: rustfmt --check $(find . -type f -iname '*.rs')
+
+  lint:
+    executor:
+      name: rust-container
+    steps:
+      - checkout
+      - run: rustup component add clippy
+      - run: cargo clippy
+
+  test:
+    executor:
+      name: rust-container
+    steps:
+      - checkout
+      - run: cargo test --all
+
+workflows:
+  version: 2
+  do_all_the_things:
+    jobs:
+      - check
+      - build:
+          requires:
+            - check
+      - fmt:
+          requires:
+            - check
+      - lint:
+          requires:
+            - check
+      - test:
+          requires:
+            - check
