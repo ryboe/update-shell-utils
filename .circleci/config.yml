@@ -19,7 +19,7 @@ jobs:
       name: rust-container
     steps:
       - checkout
-      - run: cargo check --all --all-features --all-targets --frozen
+      - run: cargo check --all --all-features --all-targets --frozen --tests
 
   fmt:
     executor:
@@ -35,7 +35,7 @@ jobs:
     steps:
       - checkout
       - run: rustup component add clippy
-      - run: cargo clippy --all-features --all-targets --frozen -- --deny clippy::all --deny clippy::cargo
+      - run: cargo clippy --all-features --all-targets --frozen --tests -- --deny clippy::all --deny clippy::cargo
 
   test:
     executor:
