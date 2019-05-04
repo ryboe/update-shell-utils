@@ -13,6 +13,4 @@ Run these common upgrade commands in parallel:
   pip3 install --upgrade --user poetry
 - rustup update
 - softwareupdate -ia
-- subl --command update_check          # upgrade sublime text
-  subl --command upgrade_all_packages  # upgrade all sublime [ackages
 ```
