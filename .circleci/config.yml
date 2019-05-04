@@ -3,17 +3,10 @@ version: 2.1
 executors:
   rust-container:
     docker:
-      - image: rust:1.33-slim
+      - image: rust:1-slim
     working_directory: /usr/src/update-shell-utils
 
 jobs:
-  build:
-    executor:
-      name: rust-container
-    steps:
-      - checkout
-      - run: cargo build --release
-
   check:
     executor:
       name: rust-container
@@ -49,9 +42,6 @@ workflows:
   do_all_the_things:
     jobs:
       - check
-      - build:
-          requires:
-            - check
       - fmt:
           requires:
             - check
