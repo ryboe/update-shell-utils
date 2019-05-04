@@ -3,7 +3,7 @@ name = "update-shell-utils"
 version = "0.1.0"
 authors = ["Ryan Boehning <ryanboehning@gmail.com>"]
 edition = "2018"
-description = "Update shell utils, Sublime Text, and macOS itself concurrently."
+description = "Update shell utils and macOS itself concurrently."
 license = "MIT"
 repository = "https://github.com/y0ssar1an/update-shell-utils"
 readme = "README.md"
@@ -11,6 +11,6 @@ keywords = ["updater"]
 categories = ["command-line-utilities"]
 
 [badges]
-circle-ci = {"repository" = "https://github.com/y0ssar1an/update-shell-utils"}
+circle-ci = { "repository" = "https://github.com/y0ssar1an/update-shell-utils" }
 
 [dependencies]
