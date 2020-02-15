@@ -10,8 +10,7 @@ Run these common upgrade commands in parallel:
 ```sh
 - brew update
   brew upgrade
-- pip3 install --upgrade pip setuptools wheel
-  pip3 install --upgrade --user poetry
+- pip install --upgrade pip setuptools wheel
 - rustup update
 - softwareupdate -ia
 ```
