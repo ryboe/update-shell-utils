@@ -12,5 +12,6 @@ Run these common upgrade commands in parallel:
   brew upgrade
 - pip install --upgrade pip setuptools wheel
 - rustup update
+  cargo install <pkgs>
 - softwareupdate -ia
 ```

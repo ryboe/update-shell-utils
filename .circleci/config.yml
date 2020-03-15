@@ -12,7 +12,7 @@ jobs:
       name: rust-container
     steps:
       - checkout
-      - run: cargo check --all --all-features --all-targets --frozen
+      - run: cargo check --all --all-features --all-targets
 
   fmt:
     executor:
@@ -28,14 +28,14 @@ jobs:
     steps:
       - checkout
       - run: rustup component add clippy
-      - run: cargo clippy --all-features --all-targets --frozen -- --deny clippy::all --deny clippy::cargo
+      - run: cargo clippy --all-features --all-targets -- --deny clippy::all --deny clippy::cargo
 
   test:
     executor:
       name: rust-container
     steps:
       - checkout
-      - run: cargo test --all --all-features --all-targets --frozen
+      - run: cargo test --all --all-features --all-targets
 
 workflows:
   version: 2
