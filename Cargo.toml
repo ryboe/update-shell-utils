@@ -13,6 +13,9 @@ categories = ["command-line-utilities"]
 [badges]
 circle-ci = { repository = "https://github.com/y0ssar1an/update-shell-utils" }
 
+[dependencies]
+regex = "1.*"
+
 [profile.release]
 codegen-units = 1
 lto = true
