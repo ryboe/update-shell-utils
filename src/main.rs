@@ -1,6 +1,6 @@
 //! Run these commands concurrently to update CLI utils, and macOS.
 //! ```sh
-//! > brew update && brew upgrade
+//! > brew update && brew upgrade && gcloud components update
 //! > softwareupdate -ia
 //! > pip install --upgrade pip setuptools wheel
 //! > rustup update && cargo install <pkgs>
@@ -57,7 +57,13 @@ fn start_workers() -> Receiver<io::Result<ExitStatus>> {
 /// Upgrade all the homebrew utils.
 fn brew_upgrade() -> io::Result<ExitStatus> {
     let _ = Command::new("brew").arg("update").status()?;
-    Command::new("brew").arg("upgrade").status()
+    let _ = Command::new("brew").arg("upgrade").status()?;
+
+    // After brew upgrades gcloud, upgrade gcloud components.
+    Command::new("gcloud")
+        .arg("components")
+        .arg("update")
+        .status()
 }
 
 /// Upgrade macOS itself.
