@@ -1,9 +1,9 @@
 //! Run these commands concurrently to update CLI utils, and macOS.
 //! ```sh
-//! > brew update && brew upgrade && gcloud components update
+//! > brew update && brew upgrade
 //! > softwareupdate -ia
 //! > pip install --upgrade pip setuptools wheel
-//! > rustup update && cargo install <pkgs>
+//! > rustup update
 //! ```
 
 #![deny(
@@ -20,7 +20,6 @@
     unused_results
 )]
 
-use regex::bytes::RegexBuilder;
 use std::io;
 use std::process::{Command, ExitStatus};
 use std::sync::mpsc::{channel, Receiver};
@@ -57,59 +56,26 @@ fn start_workers() -> Receiver<io::Result<ExitStatus>> {
 /// Upgrade all the homebrew utils.
 fn brew_upgrade() -> io::Result<ExitStatus> {
     let _ = Command::new("brew").arg("update").status()?;
-    let _ = Command::new("brew").arg("upgrade").status()?;
-
-    // After brew upgrades gcloud, upgrade gcloud components.
-    Command::new("gcloud")
-        .arg("components")
-        .arg("update")
-        .status()
+    Command::new("brew").arg("upgrade").status()
 }
 
 /// Upgrade macOS itself.
 fn macos_update() -> io::Result<ExitStatus> {
-    Command::new("sudo")
-        .arg("softwareupdate")
-        .arg("-ia")
-        .status()
+    Command::new("softwareupdate").arg("-ia").status()
 }
 
 /// Upgrade pip, setuptools, and wheel with pip.
 fn pip_upgrade() -> io::Result<ExitStatus> {
-    Command::new("pip")
-        .arg("install")
-        .arg("--upgrade")
-        .args(&["pip", "setuptools", "wheel"])
+    let _ = Command::new("python3")
+        .args(&["-m", "pip", "install", "--upgrade", "pip"])
+        .status()?;
+
+    Command::new("python3")
+        .args(&["-m", "pip", "install", "--upgrade", "setuptools", "wheel"])
         .status()
 }
 
 /// Upgrade the currently installeed Rust toolchains.
 fn rustup_update() -> io::Result<ExitStatus> {
-    let _ = Command::new("rustup").arg("update").status()?;
-
-    let output = Command::new("cargo")
-        .arg("install")
-        .arg("--list")
-        .output()?;
-
-    let re = RegexBuilder::new(r"^\S+").multi_line(true).build().unwrap();
-
-    let do_not_update = ["gitprompt", "rustlings", "update-shell-utils"];
-
-    let pkgs_to_update: Vec<String> = re
-        .captures_iter(&output.stdout)
-        .filter_map(|cap| {
-            let pkg = String::from_utf8_lossy(&cap[0]).into_owned();
-            if do_not_update.contains(&pkg.as_str()) {
-                None
-            } else {
-                Some(pkg)
-            }
-        })
-        .collect();
-
-    Command::new("cargo")
-        .arg("install")
-        .args(pkgs_to_update)
-        .status()
+    Command::new("rustup").arg("update").status()
 }
